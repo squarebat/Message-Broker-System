@@ -1,21 +1,20 @@
-PROJECT=eventflow
-IDIR=./src
-SRCDIR=./src
-BINDIR=./bin
-CC=g++
-CPPFLAGS=-I$(IDIR)
-LIBS=-lboost_program_options -lyaml-cpp
+CC = g++
+CPPFLAGS = -g
+LIBS = -lboost_program_options -lyaml-cpp
+SRCS = src/Main.cpp src/SystemContext.cpp src/SystemContext.h
+BINDIR = bin
+PROJECT = eventflow
 
+all: bin_dir $(BINDIR)/$(PROJECT)
 
-run: all
-	./bin/eventflow
-
-all: src/Main.cpp src/SystemContext.cpp src/SystemContext.h bin_dir
-	g++ src/Main.cpp src/SystemContext.cpp -I./src -lboost_program_options -lyaml-cpp -o bin/$(PROJECT)
+$(BINDIR)/$(PROJECT): $(SRCS)
+	$(CC) $(CPPFLAGS) $(SRCS) $(LIBS) -o $@
 
 .PHONY: bin_dir
 
-bin_dir:
+bin_dir: $(BINDIR)
+
+$(BINDIR):
 	mkdir -p $(BINDIR)
 
 .PHONY: clean
