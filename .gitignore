@@ -348,3 +348,10 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+/.idea/.gitignore
+/config.yaml
+/.idea/Message-Broker-System.iml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/vcs.xml
+./bin
