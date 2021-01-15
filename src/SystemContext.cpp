@@ -42,7 +42,7 @@ SystemContext& SystemContext::GenerateContext(int argc, char** argv) {
         configFile.assign(variablesMap["config"].as<std::string>());
     }
 
-    YAML::Node config = YAML::LoadFile(configFile);
+    const YAML::Node config = YAML::LoadFile(configFile);
 
     // Setting Port number for REST API
     if (variablesMap.count("port")) {
@@ -80,10 +80,39 @@ SystemContext& SystemContext::GenerateContext(int argc, char** argv) {
         systemContext.key_file_path.assign("host.key");
     }
 
-    std::cout << systemContext.port_no << std::endl;
-    std::cout << systemContext.num_api_threads << std::endl;
-    std::cout << systemContext.crt_file_path << std::endl;
-    std::cout << systemContext.key_file_path << std::endl;
+    const YAML::Node& topics = config["topics"];
+    std::vector<std::string> topic_names;
+    std::vector<std::string> client_names;
+
+    topic_names.reserve(topics.size());
+
+    for (const auto & topic : topics) {
+        topic_names.emplace_back(topic["name"].as<std::string>());
+        for (int j = 0; j < topic["publishers"].size(); j++) {
+            client_names.emplace_back(topic["publishers"][j].as<std::string>());
+        }
+        for (int j = 0; j < topic["subscribers"].size(); j++) {
+            client_names.emplace_back(topic["subscribers"][j].as<std::string>());
+        }
+    }
+
+    std::unique(topic_names.begin(), topic_names.end());
+    std::unique(client_names.begin(), client_names.end());
+
+    systemContext.accessList = std::make_unique<AccessList>(topic_names, client_names);
+
+    for (const auto & topic : topics) {
+        for (int j = 0; j < topic["publishers"].size(); j++) {
+            client_names.emplace_back();
+            systemContext.accessList->addAsPublisherOf(topic["publishers"][j].as<std::string>(),
+                    topic["name"].as<std::string>());
+        }
+        for (int j = 0; j < topic["subscribers"].size(); j++) {
+            client_names.emplace_back();
+            systemContext.accessList->addAsSubscriberOf(topic["subscribers"][j].as<std::string>(),
+                                                      topic["name"].as<std::string>());
+        }
+    }
 
     return systemContext;
 }
