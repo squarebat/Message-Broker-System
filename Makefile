@@ -1,7 +1,7 @@
 CC = g++
 CPPFLAGS = -g
 LIBS = -lboost_program_options -lyaml-cpp
-SRCS = src/Main.cpp src/SystemContext.cpp src/SystemContext.h
+SRCS = src/Main.cpp src/SystemContext.cpp src/SystemContext.h src/AccessList.cpp src/AccessList.h
 BINDIR = bin
 PROJECT = eventflow
 
