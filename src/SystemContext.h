@@ -1,13 +1,9 @@
-//
-// Created by mando on 12/01/21.
-//
-
 #ifndef MESSAGE_BROKER_SYSTEM_SYSTEMCONTEXT_H
 #define MESSAGE_BROKER_SYSTEM_SYSTEMCONTEXT_H
 
 #include <string>
 #include "AccessList.h"
-
+#include <memory>
 
 class SystemContext {
 private:

@@ -4,12 +4,9 @@
 #include <string>
 using namespace std;
 class Event {
-private:
-    
+public:
     string message;
     Event() {}
-
-public:
     Event(string message) 
     {
         this->message = message;
