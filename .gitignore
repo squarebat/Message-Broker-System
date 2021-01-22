@@ -355,3 +355,4 @@ MigrationBackup/
 /.idea/modules.xml
 /.idea/vcs.xml
 ./bin
+*.h.gch
