@@ -2,17 +2,14 @@
 // Created by mando on 12/01/21.
 //
 
-#define CROW_ENABLE_SSL
-
 #include <iostream>
 #include <boost/program_options.hpp>
-#include <utility>
 #include <yaml-cpp/yaml.h>
 #include "SystemContext.h"
 
 namespace po = boost::program_options;
 
-SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
+SystemContext& SystemContext::GenerateContext(int argc, char** argv) {
     static SystemContext systemContext;
 
     po::options_description description("usage: eventflow [options]");
@@ -90,9 +87,7 @@ SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
     topic_names.reserve(topics.size());
 
     for (const auto & topic : topics) {
-        std::string topic_name = topic["name"].as<std::string>();
-        topic_names.emplace_back(topic_name);
-        systemContext.topics[topic_name] = Topic(topic_name);
+        topic_names.emplace_back(topic["name"].as<std::string>());
         for (int j = 0; j < topic["publishers"].size(); j++) {
             client_names.emplace_back(topic["publishers"][j].as<std::string>());
         }
@@ -120,77 +115,4 @@ SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
     }
 
     return systemContext;
-}
-
-void SystemContext::StartAPI() {
-    CROW_ROUTE(app, "/auth")
-    .methods("POST"_method)
-    ([this](const crow::request& req) {
-        auto body = crow::json::load(req.body);
-        AddClient(req.ip_address, body["name"].s(), body["notify_on"].s());
-        return "Client Authenticated\n";
-    });
-
-    CROW_ROUTE(app, "/publish")
-    .methods("POST"_method)
-    ([this](const crow::request& req) {
-        auto body = crow::json::load(req.body);
-        try {
-            string topic_name = body["topic"].s();
-            Client& client = clients.at(req.ip_address);
-            if (!accessList->isPublisherOf(client.name, topic_name)) {
-                return crow::response(404, "Cannot publish to topic " + topic_name);
-            }
-            if (!body["topic"] || !body["event"])
-                return crow::response(404, "Invalid Request");
-            try {
-                Topic& topic = topics.at(topic_name);
-                string msg = body["event"].s();
-                topic.pub_event(Event(msg));
-                return crow::response(200, "Event published on Topic " + topic_name);
-            } catch (const std::out_of_range ex) {
-                return crow::response(404, "Topic does not exist.");
-            }
-        } catch (const std::out_of_range ex) {
-            return crow::response(404, "Invalid client");
-        }
-    });
-
-    CROW_ROUTE(app, "/sub")
-    .methods("POST"_method)
-    ([]() {
-        // TODO: Add client as a subscriber to all the topics in the JSON object
-        return "Subscription Successful\n";
-    });
-
-    CROW_ROUTE(app, "/<string>")
-    .methods("GET"_method)
-    ([this](const crow::request& req, const std::string& topic_name) {
-        auto body = crow::json::load(req.body);
-        crow::json::wvalue response;
-        if (!(accessList->isSubscriberOf(body["name"].s(), topic_name))) {
-            response["event"] = "";
-            response["error"] = "Cannot access topic " + topic_name;
-            return response;
-        }
-        response["event"] = topics[topic_name].get_event().message;
-        response["error"] = "";
-        return response;
-    });
-
-    CROW_ROUTE(app, "/disconnect")
-    .methods("POST"_method)
-    ([]() {
-        // TODO: Disconnect client
-        return "Disconnected\n";
-    });
-
-    app.port(port_no).multithreaded(num_api_threads).run();
-//    app.port(port_no).multithreaded(num_api_threads).ssl_file(crt_file_path, key_file_path).run();
-}
-
-void SystemContext::AddClient(const std::string& ip_address, std::string name, std::string notif_port_no) {
-    mutex_lock.lock();
-    clients.insert({ip_address, Client(std::move(name), std::move(notif_port_no))});
-    mutex_lock.unlock();
 }
