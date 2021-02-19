@@ -8,10 +8,10 @@
 void AuthenticationData::LoadData() {
     std::ifstream authDataIStream;
     authDataIStream.open(_authFilePath, std::ios::in);
-    ClientAuthData temp;
+    ClientAuthData *temp = nullptr;
     while (authDataIStream.peek() != EOF) {
         authDataIStream >> temp;
-        clientsAuthData[temp.GetName()] = temp;
+        clientsAuthData[temp->GetName()] = *temp;
     }
     authDataIStream.close();
 }
