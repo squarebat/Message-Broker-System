@@ -2,14 +2,24 @@ CC = g++
 CPPFLAGS = -g -pthread -I./src
 LIBS = -lboost_program_options -lyaml-cpp -lcrypto -lssl
 BINDIR = bin
-PROJECT = eventflow
-OBJECTS = $(BINDIR)/Main.o $(BINDIR)/SystemContext.o $(BINDIR)/AccessList.o $(BINDIR)/Topic.o $(BINDIR)/Client.o
+EVENTFLOW_BINARY = eventflow
+EVENTFLOWCTL_BINARY = eventflowctl
+OBJECTS = $(BINDIR)/Main.o $(BINDIR)/SystemContext.o $(BINDIR)/AccessList.o $(BINDIR)/Topic.o $(BINDIR)/Client.o $(BINDIR)/AuthenticationData.o $(BINDIR)/ClientAuthData.o
 CROW = $(BINDIR)/crow_all.h.gch
 
 
-all: $(BINDIR) $(BINDIR)/$(PROJECT)
+all: $(BINDIR) $(BINDIR)/$(EVENTFLOW_BINARY) $(BINDIR)/$(EVENTFLOWCTL_BINARY)
 
-$(BINDIR)/$(PROJECT): $(OBJECTS)
+$(BINDIR)/$(EVENTFLOWCTL_BINARY): src/ClientInfoMgmt.cpp $(BINDIR)/AuthenticationData.o $(BINDIR)/ClientAuthData.o
+	$(CC) $(CPPFLAGS) src/ClientInfoMgmt.cpp $(BINDIR)/AuthenticationData.o $(BINDIR)/ClientAuthData.o -lboost_program_options -lcrypt -o $@
+
+$(BINDIR)/AuthenticationData.o: src/AuthenticationData.cpp src/AuthenticationData.h
+	$(CC) -c $(CPPFLAGS) src/AuthenticationData.cpp -o $@
+
+$(BINDIR)/ClientAuthData.o: src/ClientAuthData.cpp src/ClientAuthData.h
+	$(CC) -c $(CPPFLAGS) src/ClientAuthData.cpp -o $@
+
+$(BINDIR)/$(EVENTFLOW_BINARY): $(OBJECTS)
 	$(CC) $(CPPFLAGS) $(OBJECTS) $(LIBS) -o $@
 
 $(BINDIR)/Main.o: src/Main.cpp src/SystemContext.h
