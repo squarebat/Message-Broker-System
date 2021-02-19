@@ -6,7 +6,6 @@
 
 #include <iostream>
 #include <boost/program_options.hpp>
-#include <utility>
 #include <yaml-cpp/yaml.h>
 #include "SystemContext.h"
 
@@ -101,8 +100,8 @@ SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
         }
     }
 
-    std::unique(topic_names.begin(), topic_names.end());
-    std::unique(client_names.begin(), client_names.end());
+    auto _ = std::unique(topic_names.begin(), topic_names.end());
+    _ = std::unique(client_names.begin(), client_names.end());
 
     systemContext.accessList = std::make_unique<AccessList>(topic_names, client_names);
 
@@ -123,14 +122,35 @@ SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
 }
 
 void SystemContext::StartAPI() {
+    /*
+     * request-data:
+     *      "name" - Client name,
+     *      "password" - Client password,
+     *      "notify_on" - Notification port no
+     * response-data:
+     *      if authorized: (200)
+     *          "token" - JWToken, with claim "name", expiring in 'jwtTokenValidity' hours.
+     *      else: (401)
+     *          "error" - States the error
+     */
     CROW_ROUTE(app, "/auth")
     .methods("POST"_method)
     ([this](const crow::request& req) {
         auto body = crow::json::load(req.body);
-        AddClient(req.ip_address, body["name"].s(), body["notify_on"].s());
+        AddClient(body["name"].s(), req.ip_address, body["notify_on"].s());
         return "Client Authenticated\n";
     });
 
+    /*
+     * request-data:
+     *      "token" - JWToken, with claim "name", expiring in 'jwtTokenValidity' hours.
+     * response-data:
+     *      if authorized:
+     *          200 - Event published successfully.
+     *      else:
+     *          404 - Topic does not exist / Invalid Request.
+     *          401 - Unauthorised action (Invalid token / Not a publisher of topic).
+     */
     CROW_ROUTE(app, "/publish")
     .methods("POST"_method)
     ([this](const crow::request& req) {
@@ -138,7 +158,7 @@ void SystemContext::StartAPI() {
         try {
             string topic_name = body["topic"].s();
             Client& client = clients.at(req.ip_address);
-            if (!accessList->isPublisherOf(client.name, topic_name)) {
+            if (!accessList->isPublisherOf(client.name(), topic_name)) {
                 return crow::response(404, "Cannot publish to topic " + topic_name);
             }
             if (!body["topic"] || !body["event"])
@@ -148,10 +168,10 @@ void SystemContext::StartAPI() {
                 string msg = body["event"].s();
                 topic.pub_event(Event(msg));
                 return crow::response(200, "Event published on Topic " + topic_name);
-            } catch (const std::out_of_range ex) {
+            } catch (const std::out_of_range& ex) {
                 return crow::response(404, "Topic does not exist.");
             }
-        } catch (const std::out_of_range ex) {
+        } catch (const std::out_of_range& ex) {
             return crow::response(404, "Invalid client");
         }
     });
@@ -189,8 +209,8 @@ void SystemContext::StartAPI() {
 //    app.port(port_no).multithreaded(num_api_threads).ssl_file(crt_file_path, key_file_path).run();
 }
 
-void SystemContext::AddClient(const std::string& ip_address, std::string name, std::string notif_port_no) {
+void SystemContext::AddClient(const std::string& name, const std::string& ip_address, const std::string& notif_port_no) {
     mutex_lock.lock();
-    clients.insert({ip_address, Client(std::move(name), std::move(notif_port_no))});
+    clients.insert({name, Client(name, ip_address, notif_port_no)});
     mutex_lock.unlock();
 }

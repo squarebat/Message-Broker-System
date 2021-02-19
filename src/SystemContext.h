@@ -21,13 +21,13 @@ private:
 
     std::mutex mutex_lock;
 
-    SystemContext() = default;;
+    SystemContext() = default;
 
 public:
     SystemContext(SystemContext const&) = delete;
     void operator=(SystemContext const&) = delete;
     void StartAPI();
-    void AddClient(const string &ip_address, string name, string notif_port_no);
+    void AddClient(const std::string& name, const std::string& ip_address, const std::string& notif_port_no);
     static SystemContext & GenerateContext(int argc, char **argv);
 };
 
