@@ -20,7 +20,7 @@ void AuthenticationData::WriteData() {
     std::ofstream authDataOStream;
     authDataOStream.open(_authFilePath, std::ios::out);
     for (auto& it: clientsAuthData) {
-        authDataOStream << it.second;
+        authDataOStream << &it.second;
     }
     authDataOStream.close();
 }
