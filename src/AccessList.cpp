@@ -4,7 +4,7 @@
 
 #include "AccessList.h"
 #include <utility>
-
+#include <stdexcept>
 
 AccessList::AccessList(std::vector<std::string> topic_names, std::vector<std::string> client_names) {
     for (int i = 0; i < topic_names.size(); i++) {

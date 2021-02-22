@@ -1,6 +1,6 @@
 CC = g++
 CPPFLAGS = -g -pthread -I./src
-LIBS = -lboost_program_options -lyaml-cpp -lcrypto -lssl
+LIBS = -lboost_program_options -lboost_system -lyaml-cpp -lcrypto -lssl
 BINDIR = bin
 PROJECT = eventflow
 OBJECTS = $(BINDIR)/Main.o $(BINDIR)/SystemContext.o $(BINDIR)/AccessList.o $(BINDIR)/Topic.o $(BINDIR)/Client.o
