@@ -356,3 +356,4 @@ MigrationBackup/
 /.idea/vcs.xml
 ./bin
 *.h.gch
+./logs
