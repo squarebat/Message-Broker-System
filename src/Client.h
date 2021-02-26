@@ -1,7 +1,3 @@
-//
-// Created by mando on 23/01/21.
-//
-
 #ifndef MESSAGE_BROKER_SYSTEM_CLIENT_H
 #define MESSAGE_BROKER_SYSTEM_CLIENT_H
 

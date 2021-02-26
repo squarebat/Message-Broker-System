@@ -2,18 +2,20 @@
 // Created by mando on 12/01/21.
 //
 
-#define CROW_ENABLE_SSL
-
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <yaml-cpp/yaml.h>
 #include <jwt-cpp/jwt.h>
 #include <curl/curl.h>
 #include "SystemContext.h"
-
+#include "StatusLog.h"
+#include <string>
+#include <ctime>
+#include <utility>
 namespace po = boost::program_options;
+void ProcessAndLog(std::string client, std::string request_content, std::string type_of_request, Topic & topic);
 
-SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
+SystemContext& SystemContext::GenerateContext(int argc, char** argv) {
     static SystemContext systemContext;
 
     po::options_description description("usage: eventflow [options]");
@@ -117,9 +119,7 @@ SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
     topic_names.reserve(topics.size());
 
     for (const auto & topic : topics) {
-        std::string topic_name = topic["name"].as<std::string>();
-        topic_names.emplace_back(topic_name);
-        systemContext.topics[topic_name] = Topic(topic_name);
+        topic_names.emplace_back(topic["name"].as<std::string>());
         for (int j = 0; j < topic["publishers"].size(); j++) {
             client_names.emplace_back(topic["publishers"][j].as<std::string>());
         }
@@ -186,8 +186,12 @@ void SystemContext::StartAPI() {
                                     topic.second.increment_num_active_clients();
                                 }
                             }
+                            ProcessAndLog(name, "Request IP: " + req.ip_address + "\n" + "Status: Successful",
+                                          "Client Authentication", topics.at("status_log"));
                             return crow::response(200, response);
                         } else {
+                            ProcessAndLog(name, "Request IP: " + req.ip_address + "\n" + "Status: Unsuccessful",
+                                          "Client Authentication", topics.at("status_log"));
                             response["error"] = "Authorization data invalid.";
                             return crow::response(401, response);
                         }
@@ -247,6 +251,9 @@ void SystemContext::StartAPI() {
                                     curl_global_cleanup();
                                 }, topic_name);
                                 response["status"] = "Event published successfully";
+                                ProcessAndLog(name.as_string(), "Request IP: " + req.ip_address + "\n" +
+                                "Status: Successful", "Event Publish. Topic: " + topic_name,
+                                topics.at("status_log"));
                                 return crow::response(200, response);
                             } catch (const std::out_of_range& ex) {
                                 response["error"] = "Topic does not exist";
@@ -292,6 +299,9 @@ void SystemContext::StartAPI() {
                             try {
                                 Topic& topic = topics.at(topic_name);
                                 response["event"] = topic.get_event_for(client).message;
+                                std::string request_content = "Request IP: " + req.ip_address + "Status: Successful";
+                                std::string type_of_req = "Fetch events from topic";
+                                ProcessAndLog(client.name(), request_content, type_of_req, topics.at("status_log"));
                                 return crow::response(200, response);
                             } catch (const std::out_of_range& ex) {
                                 response["error"] = "Topic does not exist";
@@ -330,6 +340,8 @@ void SystemContext::StartAPI() {
                                     }
                                 }
                                 response["status"] = "Disconnected successfully";
+                                ProcessAndLog(name.as_string(), "Request IP: " + req.ip_address + "\n" + "Status: Unsuccessful",
+                                              "Client Disconnect", topics.at("status_log"));
                                 return crow::response(200, response);
                             }
                             response["error"] = "Invalid Request";
@@ -348,4 +360,12 @@ void SystemContext::AddClient(const std::string& name, const std::string& ip_add
     mutex_lock.lock();
     clients.insert({name, Client(name, ip_address, notif_port_no)});
     mutex_lock.unlock();
+}
+
+void ProcessAndLog(std::string client, std::string request_content, std::string type_of_request, Topic& topic)
+{
+    const time_t curr_time = time(nullptr);
+    std::string time_of_request = ctime(&curr_time);
+    StatusLog log_obj = StatusLog(std::move(client), std::move(request_content), std::move(type_of_request), time_of_request);
+    StatusLog::LogStatus(log_obj, topic);        
 }

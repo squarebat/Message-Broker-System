@@ -1,8 +1,11 @@
+//
+// Created by mando on 12/01/21.
+//
+
 #ifndef MESSAGE_BROKER_SYSTEM_SYSTEMCONTEXT_H
 #define MESSAGE_BROKER_SYSTEM_SYSTEMCONTEXT_H
 
 #include <string>
-#include <memory>
 #include "AccessList.h"
 #include "crow_all.h"
 #include "Topic.h"
