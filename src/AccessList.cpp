@@ -28,26 +28,14 @@ AccessList::~AccessList() {
 }
 
 bool AccessList::isPublisherOf(const std::string& client, const std::string& topic) {
-    int _client;
-    int _topic;
-    try {
-        _client = clients.at(client);
-        _topic = topics.at(topic);
-    } catch (const std::out_of_range& ex) {
-        return false;
-    }
+    int _client = clients[client];
+    int _topic = topics[topic];
     return access_info[_topic][_client] & 1;
 }
 
 bool AccessList::isSubscriberOf(const std::string& client, const std::string& topic) {
-    int _client;
-    int _topic;
-    try {
-        _client = clients.at(client);
-        _topic = topics.at(topic);
-    } catch (const std::out_of_range& ex) {
-        return false;
-    }
+    int _client = clients[client];
+    int _topic = topics[topic];
     return access_info[_topic][_client] & 2;
 }
 

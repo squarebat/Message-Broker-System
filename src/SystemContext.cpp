@@ -2,11 +2,8 @@
 // Created by mando on 12/01/21.
 //
 
-#define CROW_ENABLE_SSL
-
 #include <iostream>
 #include <boost/program_options.hpp>
-#include <utility>
 #include <yaml-cpp/yaml.h>
 #include "SystemContext.h"
 #include "StatusLog.h"
@@ -15,7 +12,7 @@
 namespace po = boost::program_options;
 void ProcessAndLog(std::string client, std::string request_content, std::string type_of_request, Topic & topic);
 
-SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
+SystemContext& SystemContext::GenerateContext(int argc, char** argv) {
     static SystemContext systemContext;
 
     po::options_description description("usage: eventflow [options]");
@@ -93,9 +90,7 @@ SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
     topic_names.reserve(topics.size());
 
     for (const auto & topic : topics) {
-        std::string topic_name = topic["name"].as<std::string>();
-        topic_names.emplace_back(topic_name);
-        systemContext.topics[topic_name] = Topic(topic_name);
+        topic_names.emplace_back(topic["name"].as<std::string>());
         for (int j = 0; j < topic["publishers"].size(); j++) {
             client_names.emplace_back(topic["publishers"][j].as<std::string>());
         }
