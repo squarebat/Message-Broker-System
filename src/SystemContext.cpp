@@ -7,6 +7,8 @@
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <yaml-cpp/yaml.h>
+#include <jwt-cpp/jwt.h>
+#include <curl/curl.h>
 #include "SystemContext.h"
 
 namespace po = boost::program_options;
@@ -18,16 +20,18 @@ SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
     description.add_options()
             ("help", "shows this help message")
             ("config", po::value<std::string>(),
-                    "specify location of configuration file (Defaults to config.yaml)")
+             "specify location of configuration file (Defaults to config.yaml)")
+            ("authinfo", po::value<std::string>(),
+             "specify location of client authentication info file (Defaults to clientinfo)")
             ("port", po::value<uint16_t>(),
-                    "specify port number for REST API (Defaults to 18080)")
+             "specify port number for REST API (Defaults to 18080)")
             ("threads", po::value<uint16_t>(),
-                    "specify number of threads for REST API (Defaults to the number of threads supported by "
-                    "the hardware)")
+             "specify number of threads for REST API (Defaults to the number of threads supported by "
+             "the hardware)")
             ("crt", po::value<std::string>(),
-                    "specify SSL Public Key file location (Defaults to host.crt")
+             "specify SSL Public Key file location (Defaults to host.crt")
             ("key", po::value<std::string>(),
-                    "specify SSL Private Key file location (Defaults to host.key")
+             "specify SSL Private Key file location (Defaults to host.key")
             ;
 
     po::variables_map variablesMap;
@@ -39,9 +43,18 @@ SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
         exit(1);
     }
 
-    std::string configFile("config.yaml");
+    std::string configFile;
     if (variablesMap.count("config")) {
         configFile.assign(variablesMap["config"].as<std::string>());
+    } else {
+        configFile.assign("config.yaml");
+    }
+
+    std::string clientinfoFile;
+    if (variablesMap.count("authinfo")) {
+        clientinfoFile.assign(variablesMap["authinfo"].as<std::string>());
+    } else {
+        clientinfoFile.assign("clientinfo");
     }
 
     const YAML::Node config = YAML::LoadFile(configFile);
@@ -82,6 +95,21 @@ SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
         systemContext.key_file_path.assign("host.key");
     }
 
+    // Setting JWT Secret Key
+    if (config["jwt_secret"]) {
+        systemContext.jwt_secret_key.assign(config["jwt_secret"].as<std::string>());
+    } else {
+        std::cerr << "jwt_secret required. Please provide it in the config file.\n";
+        exit(1);
+    }
+
+    // Setting JWT Token Validity
+    if (config["jwt_validity"]) {
+        systemContext.token_validity = config["jwt_validity"].as<long>();
+    } else {
+        systemContext.token_validity = 24;
+    }
+
     const YAML::Node& topics = config["topics"];
     std::vector<std::string> topic_names;
     std::vector<std::string> client_names;
@@ -109,14 +137,17 @@ SystemContext & SystemContext::GenerateContext(int argc, char** argv) {
         for (int j = 0; j < topic["publishers"].size(); j++) {
             client_names.emplace_back();
             systemContext.accessList->addAsPublisherOf(topic["publishers"][j].as<std::string>(),
-                    topic["name"].as<std::string>());
+                                                       topic["name"].as<std::string>());
         }
         for (int j = 0; j < topic["subscribers"].size(); j++) {
             client_names.emplace_back();
             systemContext.accessList->addAsSubscriberOf(topic["subscribers"][j].as<std::string>(),
-                                                      topic["name"].as<std::string>());
+                                                        topic["name"].as<std::string>());
         }
     }
+
+    systemContext.authenticationData = new AuthenticationData(clientinfoFile);
+    systemContext.authenticationData->LoadData();
 
     return systemContext;
 }
@@ -128,22 +159,45 @@ void SystemContext::StartAPI() {
      *      "password" - Client password,
      *      "notify_on" - Notification port no
      * response-data:
-     *      if authorized: (200)
-     *          "token" - JWToken, with claim "name", expiring in 'jwtTokenValidity' hours.
+     *      if authenticated: (200)
+     *          "token" - JWToken, with claim "name", expiring in 'token_validity' hours.
      *      else: (401)
      *          "error" - States the error
      */
     CROW_ROUTE(app, "/auth")
-    .methods("POST"_method)
-    ([this](const crow::request& req) {
-        auto body = crow::json::load(req.body);
-        AddClient(body["name"].s(), req.ip_address, body["notify_on"].s());
-        return "Client Authenticated\n";
-    });
+            .methods("POST"_method)
+                    ([this](const crow::request& req) {
+                        auto body = crow::json::load(req.body);
+                        std::string name(body["name"].s());
+                        std::string password(body["password"].s());
+                        std::string notify_on(body["notify_on"].s());
+                        crow::json::wvalue response;
+                        if (authenticationData->AuthenticateClient(name, password)) {
+                            AddClient(name, req.ip_address, notify_on);
+                            auto token = jwt::create()
+                                    .set_issuer("eventflow")
+                                    .set_issued_at(std::chrono::system_clock::now())
+                                    .set_payload_claim("name", jwt::claim(name))
+                                    .set_expires_at(std::chrono::system_clock::now() + std::chrono::hours{token_validity})
+                                    .sign(jwt::algorithm::hs256{jwt_secret_key});
+                            response["token"] = token;
+                            for (auto& topic: topics) {
+                                if (accessList->isSubscriberOf(name, topic.first)) {
+                                    topic.second.increment_num_active_clients();
+                                }
+                            }
+                            return crow::response(200, response);
+                        } else {
+                            response["error"] = "Authorization data invalid.";
+                            return crow::response(401, response);
+                        }
+                    });
 
     /*
      * request-data:
-     *      "token" - JWToken, with claim "name", expiring in 'jwtTokenValidity' hours.
+     *      "token" - JWToken, with claim "name", expiring in 'token_validity' hours.
+     *      "topic" - Topic to which the event is to be published.
+     *      "event" - Event / message that is to be published.
      * response-data:
      *      if authorized:
      *          200 - Event published successfully.
@@ -152,58 +206,139 @@ void SystemContext::StartAPI() {
      *          401 - Unauthorised action (Invalid token / Not a publisher of topic).
      */
     CROW_ROUTE(app, "/publish")
-    .methods("POST"_method)
-    ([this](const crow::request& req) {
-        auto body = crow::json::load(req.body);
-        try {
-            string topic_name = body["topic"].s();
-            Client& client = clients.at(req.ip_address);
-            if (!accessList->isPublisherOf(client.name(), topic_name)) {
-                return crow::response(404, "Cannot publish to topic " + topic_name);
-            }
-            if (!body["topic"] || !body["event"])
-                return crow::response(404, "Invalid Request");
-            try {
-                Topic& topic = topics.at(topic_name);
-                string msg = body["event"].s();
-                topic.pub_event(Event(msg));
-                return crow::response(200, "Event published on Topic " + topic_name);
-            } catch (const std::out_of_range& ex) {
-                return crow::response(404, "Topic does not exist.");
-            }
-        } catch (const std::out_of_range& ex) {
-            return crow::response(404, "Invalid client");
-        }
-    });
+            .methods("POST"_method)
+                    ([this](const crow::request& req) {
+                        crow::json::wvalue response;
+                        try {
+                            auto body = crow::json::load(req.body);
+                            std::string token(body["token"].s());
+                            auto decoded_token = jwt::decode(token);
+                            auto claims = decoded_token.get_payload_claims();
+                            auto name = claims["name"];
+                            std::string topic_name(body["topic"].s());
+                            std::string event(body["event"].s());
+                            if (!accessList->isPublisherOf(name.as_string(), topic_name)) {
+                                response["error"] = "Unauthorized action";
+                                return crow::response(401, response);
+                            }
+                            if (topic_name.empty() || event.empty()) {
+                                response["error"] = "Invalid Request";
+                                return crow::response(404, response);
+                            }
+                            try {
+                                Topic& topic = topics.at(topic_name);
+                                topic.pub_event(event);
+                                std::thread thread([this] (const std::string& topic_name) {
+                                    CURL *curl;
+                                    for (auto& client: clients) {
+                                        if (accessList->isSubscriberOf(client.first, topic_name)) {
+                                            curl = curl_easy_init();
+                                            if (curl) {
+                                                std::string url = std::string("http://") + client.second.ip_address()
+                                                                  + std::string(":") + client.second.notif_port_no() + std::string("/");
+                                                std::string post_fields = "topic=" + topic_name;
+                                                curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+                                                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_fields.c_str());
+                                                curl_easy_perform(curl);
+                                            }
+                                            curl_easy_cleanup(curl);
+                                        }
+                                    }
+                                    curl_global_cleanup();
+                                }, topic_name);
+                                response["status"] = "Event published successfully";
+                                return crow::response(200, response);
+                            } catch (const std::out_of_range& ex) {
+                                response["error"] = "Topic does not exist";
+                                return crow::response(404, response);
+                            }
+                        } catch (const std::exception& ex) {
+                            response["error"] = "Invalid client";
+                            return crow::response(401, response);
+                        }
+                    });
 
-    CROW_ROUTE(app, "/sub")
-    .methods("POST"_method)
-    ([]() {
-        // TODO: Add client as a subscriber to all the topics in the JSON object
-        return "Subscription Successful\n";
-    });
+    /*
+     * request-data:
+     *      "token" - JWToken, with claim "name", expiring in 'token_validity' hours.
+     *      "topic" - Topic from which the event is to be fetched.
+     * response-data:
+     *      if authorized (200):
+     *          "event" - Event.
+     *      else:
+     *          404 - Topic does not exist / Invalid Request.
+     *          401 - Unauthorised action (Invalid token / Not a subscriber of topic).
+     */
+    CROW_ROUTE(app, "/")
+            .methods("GET"_method)
+                    ([this](const crow::request& req) {
+                        crow::json::wvalue response;
+                        try {
+                            auto body = crow::json::load(req.body);
+                            std::string token(body["token"].s());
+                            auto decoded_token = jwt::decode(token);
+                            auto claims = decoded_token.get_payload_claims();
+                            auto name = claims["name"];
+                            std::string topic_name(body["topic"].s());
+                            Client& client = clients[name.as_string()];
+                            if (!(accessList->isSubscriberOf(client.name(), topic_name))) {
+                                response["error"] = "Unauthorized action";
+                                return crow::response(401, response);
+                            }
+                            if (topic_name.empty()) {
+                                response["error"] = "Invalid Request";
+                                return crow::response(404, response);
+                            }
+                            try {
+                                Topic& topic = topics.at(topic_name);
+                                response["event"] = topic.get_event_for(client).message;
+                                return crow::response(200, response);
+                            } catch (const std::out_of_range& ex) {
+                                response["error"] = "Topic does not exist";
+                                return crow::response(404, response);
+                            }
+                        } catch (const std::exception& ex) {
+                            response["error"] = "Invalid client";
+                            return crow::response(401, response);
+                        }
+                    });
 
-    CROW_ROUTE(app, "/<string>")
-    .methods("GET"_method)
-    ([this](const crow::request& req, const std::string& topic_name) {
-        auto body = crow::json::load(req.body);
-        crow::json::wvalue response;
-        if (!(accessList->isSubscriberOf(body["name"].s(), topic_name))) {
-            response["event"] = "";
-            response["error"] = "Cannot access topic " + topic_name;
-            return response;
-        }
-        response["event"] = topics[topic_name].get_event().message;
-        response["error"] = "";
-        return response;
-    });
-
+    /*
+     * request-data:
+     *      "token" - JWToken, with claim "name", expiring in 'token_validity' hours.
+     * response-data:
+     *      if authorized:
+     *          200 - Disconnected successfully.
+     *      else:
+     *          404 - Invalid Request.
+     *          401 - Invalid Client.
+     */
     CROW_ROUTE(app, "/disconnect")
-    .methods("POST"_method)
-    ([]() {
-        // TODO: Disconnect client
-        return "Disconnected\n";
-    });
+            .methods("POST"_method)
+                    ([this](const crow::request& req) {
+                        crow::json::wvalue response;
+                        try {
+                            auto body = crow::json::load(req.body);
+                            std::string token(body["token"].s());
+                            auto decoded_token = jwt::decode(token);
+                            auto claims = decoded_token.get_payload_claims();
+                            auto name = claims["name"];
+                            if (clients.find(name.as_string()) != clients.end()) {
+                                for (auto& topic: topics) {
+                                    if (accessList->isSubscriberOf(name.as_string(), topic.first)) {
+                                        topic.second.decrement_num_active_clients();
+                                    }
+                                }
+                                response["status"] = "Disconnected successfully";
+                                return crow::response(200, response);
+                            }
+                            response["error"] = "Invalid Request";
+                            return crow::response(404, response);
+                        } catch (std::exception& ex) {
+                            response["error"] = "Invalid client";
+                            return crow::response(401, response);
+                        }
+                    });
 
     app.port(port_no).multithreaded(num_api_threads).run();
 //    app.port(port_no).multithreaded(num_api_threads).ssl_file(crt_file_path, key_file_path).run();

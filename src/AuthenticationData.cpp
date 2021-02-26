@@ -8,10 +8,10 @@
 void AuthenticationData::LoadData() {
     std::ifstream authDataIStream;
     authDataIStream.open(_authFilePath, std::ios::in);
-    ClientAuthData *temp = nullptr;
+    ClientAuthData temp;
     while (authDataIStream.peek() != EOF) {
         authDataIStream >> temp;
-        clientsAuthData[temp->GetName()] = *temp;
+        clientsAuthData[temp.GetName()] = temp;
     }
     authDataIStream.close();
 }
@@ -26,7 +26,7 @@ void AuthenticationData::WriteData() {
 }
 
 bool AuthenticationData::AuthenticateClient(const std::string &name, const std::string &password) {
-    return clientsAuthData[name].Authenticate(name, password);
+    return clientsAuthData.at(name).Authenticate(name, password);
 }
 
 void AuthenticationData::AddClientAuthData(const std::string& name, const std::string& password) {

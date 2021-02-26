@@ -7,6 +7,7 @@
 #include "crow_all.h"
 #include "Topic.h"
 #include "Client.h"
+#include "AuthenticationData.h"
 
 class SystemContext {
 private:
@@ -14,8 +15,11 @@ private:
     uint16_t num_api_threads{};
     std::string crt_file_path;
     std::string key_file_path;
+    std::string jwt_secret_key;
+    long token_validity;
     std::unique_ptr<AccessList> accessList;
     crow::SimpleApp app;
+    AuthenticationData* authenticationData;
     unordered_map<std::string, Topic> topics;
     unordered_map<std::string, Client> clients;
 
