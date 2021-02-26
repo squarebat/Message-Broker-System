@@ -32,14 +32,14 @@ bool ClientAuthData::Authenticate(const std::string &name, const std::string &pa
     return _name == name && strcmp(crypt(password.c_str(), _password.c_str()), _password.c_str()) == 0 ;
 }
 
-std::ostream& operator<<(std::ostream& os, const ClientAuthData* clientAuthData) {
-    os << clientAuthData->_name << " : " << clientAuthData->_password << "\n";
+std::ostream& operator<<(std::ostream& os, const ClientAuthData& clientAuthData) {
+    os << clientAuthData._name << " : " << clientAuthData._password << "\n";
     return os;
 }
 
-std::istream& operator>>(std::istream& is, ClientAuthData* clientAuthData) {
+std::istream& operator>>(std::istream& is, ClientAuthData& clientAuthData) {
     char temp;
-    is >> clientAuthData->_name >> temp >> clientAuthData->_password;
+    is >> clientAuthData._name >> temp >> clientAuthData._password;
     return is;
 }
 
