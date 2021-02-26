@@ -7,6 +7,7 @@
 #include <string>
 #include "spdlog/details/null_mutex.h"
 #include <mutex>
+#include <utility>
 namespace spdlog
 {
     namespace sinks
@@ -15,8 +16,8 @@ namespace spdlog
         class publish_to_topic_sink : public spdlog::sinks::base_sink <Mutex>
         {
             public:
-                explicit publish_to_topic_sink(Topic & topic, std::string log) {
-                    topic.pub_event(Event(std::move(log)));
+                explicit publish_to_topic_sink(Topic& topic, std::string log) {
+                    topic.pub_event(std::move(log));
                 }
             
             protected:
