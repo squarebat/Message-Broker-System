@@ -1,5 +1,5 @@
 CC = g++
-CPPFLAGS = -g -pthread -I./src -I./spdlog/include/
+CPPFLAGS = -g -pthread -I./src
 LIBS = -lboost_program_options -lboost_system -lyaml-cpp -lcrypt -lcrypto -lcurl -lssl
 BINDIR = bin
 EVENTFLOW_BINARY = eventflow
