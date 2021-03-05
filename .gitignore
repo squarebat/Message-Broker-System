@@ -357,4 +357,5 @@ MigrationBackup/
 ./bin
 *.h.gch
 ./logs
+/clientinfo
 

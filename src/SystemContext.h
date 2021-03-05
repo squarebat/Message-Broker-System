@@ -6,11 +6,11 @@
 #define MESSAGE_BROKER_SYSTEM_SYSTEMCONTEXT_H
 
 #include <string>
-#include "AccessList.h"
-#include "crow_all.h"
-#include "Topic.h"
-#include "Client.h"
-#include "AuthenticationData.h"
+#include <AccessList.h>
+#include <crow_all.h>
+#include <Topic.h>
+#include <Client.h>
+#include <AuthenticationData.h>
 
 class SystemContext {
 private:
@@ -19,14 +19,15 @@ private:
     std::string crt_file_path;
     std::string key_file_path;
     std::string jwt_secret_key;
-    long token_validity;
+    long token_validity{};
     std::unique_ptr<AccessList> accessList;
     crow::SimpleApp app;
-    AuthenticationData* authenticationData;
+    AuthenticationData* authenticationData{};
     unordered_map<std::string, Topic> topics;
     unordered_map<std::string, Client> clients;
-
     std::mutex mutex_lock;
+
+    static const std::string logger_name;
 
     SystemContext() = default;
 

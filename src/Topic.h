@@ -7,15 +7,15 @@
 #include <unordered_map>
 #include <utility>
 #include <mutex>
-#include "Event.h"
-#include "Client.h"
+#include <Event.h>
+#include <Client.h>
 
 
 class Topic : public basic_string<char> {
 private:
     std::mutex mutex_lock;
     std::mutex count_mutex_lock;
-    long num_events_published;
+    long num_events_published{};
     long num_active_clients{};
 public:
     std::string name;

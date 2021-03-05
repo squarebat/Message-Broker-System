@@ -1,13 +1,12 @@
 CC = g++
-CPPFLAGS = -g -pthread -I./src -I./spdlog/include/
+CPPFLAGS = -g -pthread -I./src
 LIBS = -lboost_program_options -lboost_system -lyaml-cpp -lcrypt -lcrypto -lcurl -lssl
 BINDIR = bin
 EVENTFLOW_BINARY = eventflow
 EVENTFLOWCTL_BINARY = eventflowctl
-OBJECTS = $(BINDIR)/Main.o $(BINDIR)/SystemContext.o $(BINDIR)/AccessList.o $(BINDIR)/Topic.o $(BINDIR)/AuthenticationData.o $(BINDIR)/ClientAuthData.o $(BINDIR)/StatusLog.o
+OBJECTS = $(BINDIR)/Main.o $(BINDIR)/SystemContext.o $(BINDIR)/AccessList.o $(BINDIR)/Topic.o $(BINDIR)/AuthenticationData.o $(BINDIR)/ClientAuthData.o
 CROW = $(BINDIR)/crow_all.h.gch
 PUBSINK = $(BINDIR)/publish_to_topic_sink.h.gch
-LOGDIR = logs
 
 all: $(BINDIR) $(LOGDIR) $(BINDIR)/$(EVENTFLOW_BINARY) $(BINDIR)/$(EVENTFLOWCTL_BINARY)
 
@@ -35,9 +34,6 @@ $(BINDIR)/AccessList.o: src/AccessList.cpp
 $(BINDIR)/Topic.o: src/Topic.cpp src/Topic.h src/Client.h
 	$(CC) -c $(CPPFLAGS) src/Topic.cpp -o $@
 
-$(BINDIR)/StatusLog.o: src/StatusLog.cpp src/StatusLog.h $(PUBSINK)
-	$(CC) -c $(CPPFLAGS) src/StatusLog.cpp -o $@
-
 $(PUBSINK): src/publish_to_topic_sink.h
 	$(CC) -w -c $(CPPFLAGS) src/publish_to_topic_sink.h -o $@
 
@@ -46,10 +42,6 @@ $(CROW): src/crow_all.h
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
-
-$(LOGDIR):
-	mkdir -p $(LOGDIR)
-	touch $(LOGDIR)/logfile.txt
 
 .PHONY: clean
 
