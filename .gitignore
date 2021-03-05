@@ -358,4 +358,6 @@ MigrationBackup/
 *.h.gch
 ./logs
 /clientinfo
+/example.crt
+/example.key
 
