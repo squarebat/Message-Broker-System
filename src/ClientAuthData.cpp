@@ -7,7 +7,7 @@
 #include <iostream>
 #include <crypt.h>
 #include <cstring>
-#include "ClientAuthData.h"
+#include <ClientAuthData.h>
 
 void ClientAuthData::SetPassword(const std::string &password) {
     unsigned long seed[2];
@@ -39,7 +39,7 @@ std::ostream& operator<<(std::ostream& os, const ClientAuthData& clientAuthData)
 
 std::istream& operator>>(std::istream& is, ClientAuthData& clientAuthData) {
     char temp;
-    is >> clientAuthData._name >> temp >> clientAuthData._password;
+    is >> clientAuthData._name >> temp >> clientAuthData._password >> std::ws;
     return is;
 }
 

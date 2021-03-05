@@ -3,13 +3,14 @@
 //
 
 #include <iostream>
-#include "AuthenticationData.h"
+#include <cstdio>
+#include <AuthenticationData.h>
 
 void AuthenticationData::LoadData() {
     std::ifstream authDataIStream;
     authDataIStream.open(_authFilePath, std::ios::in);
-    ClientAuthData temp;
     while (authDataIStream.peek() != EOF) {
+        ClientAuthData temp;
         authDataIStream >> temp;
         clientsAuthData[temp.GetName()] = temp;
     }
@@ -19,8 +20,8 @@ void AuthenticationData::LoadData() {
 void AuthenticationData::WriteData() {
     std::ofstream authDataOStream;
     authDataOStream.open(_authFilePath, std::ios::out);
-    for (auto& it: clientsAuthData) {
-        authDataOStream << &it.second;
+    for (const auto& it: clientsAuthData) {
+        authDataOStream << it.second;
     }
     authDataOStream.close();
 }

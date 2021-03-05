@@ -2,8 +2,7 @@
 // Created by mando on 23/01/21.
 //
 
-#include "Topic.h"
-
+#include <Topic.h>
 #include <utility>
 
 Topic::Topic(string topic_name) {
@@ -23,9 +22,10 @@ void Topic::pub_event(std::string event) {
     count_mutex_lock.unlock();
     mutex_lock.unlock();
 }
+
 Event Topic::get_event_for(Client& client) {
     long index = num_events_published - client.num_events_fetched_from(name) - 1;
-    Event& event = events[index];
+    Event& event = events.at(index);
     event.decrement_count();
     if (event.read_by_all_clients()) {
         events.erase(events.begin());
