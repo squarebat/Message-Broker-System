@@ -1,5 +1,5 @@
 CC = g++
-CPPFLAGS = -g -pthread -I./src
+CPPFLAGS = -pthread -I./src
 LIBS = -lboost_program_options -lboost_system -lyaml-cpp -lcrypt -lcrypto -lcurl -lssl
 BINDIR = bin
 EVENTFLOW_BINARY = eventflow
@@ -8,7 +8,13 @@ OBJECTS = $(BINDIR)/Main.o $(BINDIR)/SystemContext.o $(BINDIR)/AccessList.o $(BI
 CROW = $(BINDIR)/crow_all.h.gch
 PUBSINK = $(BINDIR)/publish_to_topic_sink.h.gch
 
-all: $(BINDIR) $(LOGDIR) $(BINDIR)/$(EVENTFLOW_BINARY) $(BINDIR)/$(EVENTFLOWCTL_BINARY)
+all: release
+
+debug: CPPFLAGS += -g
+debug: $(BINDIR) $(LOGDIR) $(BINDIR)/$(EVENTFLOW_BINARY) $(BINDIR)/$(EVENTFLOWCTL_BINARY)
+
+release: CPPFLAGS += -O3
+release: $(BINDIR) $(LOGDIR) $(BINDIR)/$(EVENTFLOW_BINARY) $(BINDIR)/$(EVENTFLOWCTL_BINARY)
 
 $(BINDIR)/$(EVENTFLOWCTL_BINARY): src/ClientInfoMgmt.cpp $(BINDIR)/AuthenticationData.o $(BINDIR)/ClientAuthData.o
 	$(CC) $(CPPFLAGS) src/ClientInfoMgmt.cpp $(BINDIR)/AuthenticationData.o $(BINDIR)/ClientAuthData.o -lboost_program_options -lcrypt -o $@
