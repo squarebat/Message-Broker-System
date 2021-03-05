@@ -2,6 +2,8 @@
 // Created by mando on 12/01/21.
 //
 
+#define CROW_ENABLE_SSL
+
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <yaml-cpp/yaml.h>
@@ -599,8 +601,7 @@ void SystemContext::StartAPI() {
                         }
                     });
 
-    app.port(port_no).multithreaded(num_api_threads).run();
-//    app.port(port_no).multithreaded(num_api_threads).ssl_file(crt_file_path, key_file_path).run();
+    app.port(port_no).multithreaded(num_api_threads).ssl_file(crt_file_path, key_file_path).run();
 }
 
 void SystemContext::AddClient(const std::string& name, const std::string& ip_address, const std::string& notif_port_no) {
