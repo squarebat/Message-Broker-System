@@ -4,6 +4,7 @@
 
 #include <Topic.h>
 #include <utility>
+#include <thread>
 
 Topic::Topic(string topic_name) {
     this->name = std::move(topic_name);
@@ -28,10 +29,32 @@ Event Topic::get_event_for(Client& client) {
     Event& event = events.at(index);
     event.decrement_count();
     if (event.read_by_all_clients()) {
-        events.erase(events.begin());
+        std::thread thread([this] () {
+            mutex_lock.lock();
+            events.erase(events.begin());
+            mutex_lock.unlock();
+        });
+        thread.detach();
     }
     client.increment_num_events_fetched_from(name);
     return event;
+}
+
+void Topic::remove_client(Client& client) {
+    long index = num_events_published - client.num_events_fetched_from(name) - 1;
+    long num_events;
+    mutex_lock.lock();
+    num_events = events.size();
+    while (index <= num_events) {
+        Event& event = events.at(index);
+        event.decrement_count();
+        if (event.read_by_all_clients()) {
+            events.erase(events.begin());
+        }
+        index++;
+    }
+    decrement_num_active_clients();
+    mutex_lock.unlock();
 }
 
 void Topic::increment_num_active_clients() {

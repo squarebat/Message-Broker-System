@@ -25,6 +25,7 @@ public:
     Topic& operator=(const Topic& topic);
     void pub_event(std::string event);
     Event get_event_for(Client& client);
+    void remove_client(Client& client);
     void increment_num_active_clients();
     void decrement_num_active_clients();
 };

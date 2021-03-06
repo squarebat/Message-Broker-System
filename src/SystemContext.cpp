@@ -555,15 +555,16 @@ void SystemContext::StartAPI() {
                             auto claims = decoded_token.get_payload_claims();
                             auto _name = claims["name"];
                             std::string name = _name.as_string();
-                            Client &client = clients.at(name);
+                            Client& client = clients.at(name);
                             if (logger != nullptr) {
                                 log_data["client"] = client.name();
                             }
-                            for (auto &topic: topics) {
+                            for (auto& topic: topics) {
                                 if (accessList->isSubscriberOf(client.name(), topic.first)) {
-                                    topic.second.decrement_num_active_clients();
+                                    topic.second.remove_client(client);
                                 }
                             }
+                            clients.erase(name);
                             response["status"] = "OK - Disconnected Successfully";
                             if (logger != nullptr) {
                                 log_data["message"] = "Disconnected Successfully";
