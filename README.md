@@ -6,6 +6,9 @@ Eventflow is an experimental message broker system, developed to understand the 
 
 A message broker is a system that facilitates the communication between different applications, services and system. In a production environment, message brokers effectively translate messages between formal messaging protocols. It hence allows for easy flow of data between applications and services, even if they're written in different languages and follow different protocols.
 
+![](./images/K3.svg.png =100x100)
+![](./images/K7.svg.png =100x100)
+
 ## Use Cases
 
 ## Features
