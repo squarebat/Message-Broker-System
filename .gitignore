@@ -360,4 +360,5 @@ MigrationBackup/
 /clientinfo
 /example.crt
 /example.key
+/.vscode
 
