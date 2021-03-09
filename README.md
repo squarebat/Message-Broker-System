@@ -16,6 +16,8 @@ In complex applications where several services are running interdependent to eac
 
 As we can see, the number of connections quickly increases with increase in number of services. Forming these connections seperately is a costly and complicated operation. That's where a message broker comes into the picture. Instead of connecting all the interdependent applications to each other, they're connected to a message broker. This acts as a point of communication. Services can send messages to a the message broker. These messages stay there until a receiving application is ready to fetch them. Now all applications are just connected to the message broker, they do not need to know the destination to send messages. 
 
+<img src="./images/messagebroker.png" alt="messagebroker" width="70%"/>
+
 The two basic messaging styles of a message broker system are:
 
 1. Point-to-point messaging
