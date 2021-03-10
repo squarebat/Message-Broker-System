@@ -39,17 +39,19 @@ Further information about these distribution patterns is provided in [Features](
 ## <a name="usecases"></a>Use Cases
 ## <a name="features"></a>Features
 
-Eventflow offers implementation of the two message distribution patterns, point-to-point messaging and publish/subscribe messaging.
+Eventflow offers implementation of the two message distribution patterns, point-to-point messaging and publish/subscribe messaging. Additionally, status logging is also provided.
 
 1. <b>Publish/Subscribe messaging - </b>This pattern, often referred to as pub/sub is used for broadcast style communication. The producer of a message publishes it to a topic. A consumer subscribes to a topic to receive its messages. All applications subcribed to this topic will receive all the messages published on to it. This establishes a one-to-many relationship between the producer and consumers of message. For example, in the case of change in route of a train, this information may be useful to several entities, the staff positioned at railway stations concerned by the update, the locomotive pilot and the staff onboard the train, and the passengers. In this case, pub/sub model should be used.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./images/pubsub.png" alt="publish/subscribe pattern" width="50%"/>
 
-&nbsp;&nbsp;Note that a publisher can also subscribe to topics and vice versa. 
+&nbsp;&nbsp;&nbsp; Note that a publisher can also subscribe to topics and vice versa. 
 
 2. <b>Point-to-Point messaging - </b>This pattern is used when there is a one-to-one relationship between producer and consumer. Only one producer will send messages to a message queue. These messages will be fetched by only one consumer, and only once. This pattern is useful in financial transactions, where a payment should be carried out exactly once. 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./images/P2P.png" alt="point-to-point pattern" width="50%"/>
+
+3. The status log of any activity that occurs after connection with Eventflow is established is logged in a separate topic defined for logging. The log includes details about the activity and the time it occured. Steps to define a topic for status log are listed in [Setup](#setup). 
 
 Eventflow API contains publish and subscribe for achieving publish/subscribe messaging. Additionally, client authentication and authorization features are provided for point-to-point messaging. However, acks have not been implemented i.e. a producer will never know if a message is delivered. This bears a serious limitation in message communication. More on this in [Eventflow API](#api).
 
