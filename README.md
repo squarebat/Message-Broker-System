@@ -34,10 +34,19 @@ The two basic messaging styles of a message broker system are:
 1. Point-to-point messaging
 2. Publish/Subscribe messaging
 
-Further information about these distribution patterns is provided in [Features](#Features).
+Further information about these distribution patterns is provided in [Features](#features).
 
 ## <a name="usecases"></a>Use Cases
 ## <a name="features"></a>Features
+
+Eventflow offers implementation of the two message distribution patterns, point-to-point messaging and publish/subscribe messaging.
+
+1. <b>Publish/Subscribe messaging - </b>This pattern, often referred to as pub/sub is used for broadcast style communication. The producer of a message publishes it to a topic. A consumer subscribes to a topic to receive its messages. All applications subcribed to this topic will receive all the messages published on to it. This establishes a one-to-many relationship between the producer and consumers of message. For example, in the case of change in route of a train, this information may be useful to several entities, the staff positioned at railway stations concerned by the update, the locomotive pilot and the staff onboard the train, and the passengers. In this case, pub/sub model should be used.
+
+2. <b>Point-to-Point messaging - </b>This pattern is used when there is a one-to-one relationship between producer and consumer. Only one producer will send messages to a message queue. These messages will be fetched by only one consumer, and only once. This pattern is useful in financial transactions, where a payment should be carried out exactly once. 
+
+Eventflow API contains publish and subscribe for achieving publish/subscribe messaging. Additionally, client authentication and authorization features are provided for point-to-point messaging. However, acks have not been implemented i.e. a producer will never know if a message is delivered. This bears a serious limitation in message communication. More on this in [Eventflow API](#api).
+
 ## <a name="api"></a>Eventflow API
 ## <a name="setup"></a>Setup
 ## <a name="limitations"></a>Limitations
