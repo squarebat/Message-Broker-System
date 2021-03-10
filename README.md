@@ -51,7 +51,7 @@ Eventflow offers implementation of the two message distribution patterns, point-
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./images/P2P.png" alt="point-to-point pattern" width="50%"/>
 
-3. The status log of any activity that occurs after connection with Eventflow is established is logged in a separate topic defined for logging. The log includes details about the activity and the time it occured. Steps to define a topic for status log are listed in [Setup](#setup). 
+3. <b>Activity logging - </b>The status log of any activity that occurs after connection with Eventflow is established is logged in a separate topic defined for logging. The log includes details about the activity and the time it occured. Steps to define a topic for status log are listed in [Setup](#setup). 
 
 Eventflow API contains publish and subscribe for achieving publish/subscribe messaging. Additionally, client authentication and authorization features are provided for point-to-point messaging. However, acks have not been implemented i.e. a producer will never know if a message is delivered. This bears a serious limitation in message communication. More on this in [Eventflow API](#api).
 
