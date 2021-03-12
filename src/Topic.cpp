@@ -1,12 +1,8 @@
-//
-// Created by mando on 23/01/21.
-//
-
 #include <Topic.h>
 #include <utility>
 #include <thread>
 
-Topic::Topic(string topic_name) {
+Topic::Topic(std::string topic_name) {
     this->name = std::move(topic_name);
     this->num_active_clients = 0;
 }

@@ -1,10 +1,6 @@
-//
-// Created by mando on 19/02/21.
-//
-
 #include <iostream>
 #include <boost/program_options.hpp>
-#include "AuthenticationData.h"
+#include <AuthenticationData.h>
 
 namespace po = boost::program_options;
 

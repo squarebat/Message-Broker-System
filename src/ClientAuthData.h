@@ -1,7 +1,3 @@
-//
-// Created by mando on 19/02/21.
-//
-
 #ifndef MESSAGE_BROKER_SYSTEM_CLIENTAUTHDATA_H
 #define MESSAGE_BROKER_SYSTEM_CLIENTAUTHDATA_H
 
@@ -24,6 +20,5 @@ public:
 
     static char GetCharFrom6BitNum(unsigned int i);
 };
-
 
 #endif //MESSAGE_BROKER_SYSTEM_CLIENTAUTHDATA_H

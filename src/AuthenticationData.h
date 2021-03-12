@@ -1,10 +1,5 @@
-//
-// Created by mando on 19/02/21.
-//
-
 #ifndef MESSAGE_BROKER_SYSTEM_AUTHENTICATIONDATA_H
 #define MESSAGE_BROKER_SYSTEM_AUTHENTICATIONDATA_H
-
 
 #include <fstream>
 #include <utility>

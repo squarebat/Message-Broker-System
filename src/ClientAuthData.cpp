@@ -1,7 +1,3 @@
-//
-// Created by mando on 19/02/21.
-//
-
 #include <unistd.h>
 #include <ctime>
 #include <iostream>
@@ -9,7 +5,7 @@
 #include <cstring>
 #include <ClientAuthData.h>
 
-void ClientAuthData::SetPassword(const std::string &password) {
+void ClientAuthData::SetPassword(const std::string& password) {
     unsigned long seed[2];
     char salt[] = "$1$........";
     char *passwd;
@@ -28,7 +24,7 @@ void ClientAuthData::SetPassword(const std::string &password) {
     }
 }
 
-bool ClientAuthData::Authenticate(const std::string &name, const std::string &password) {
+bool ClientAuthData::Authenticate(const std::string& name, const std::string& password) {
     return _name == name && strcmp(crypt(password.c_str(), _password.c_str()), _password.c_str()) == 0 ;
 }
 

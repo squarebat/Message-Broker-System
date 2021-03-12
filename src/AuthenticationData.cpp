@@ -1,7 +1,3 @@
-//
-// Created by mando on 19/02/21.
-//
-
 #include <iostream>
 #include <cstdio>
 #include <AuthenticationData.h>
@@ -26,7 +22,7 @@ void AuthenticationData::WriteData() {
     authDataOStream.close();
 }
 
-bool AuthenticationData::AuthenticateClient(const std::string &name, const std::string &password) {
+bool AuthenticationData::AuthenticateClient(const std::string& name, const std::string& password) {
     return clientsAuthData.at(name).Authenticate(name, password);
 }
 

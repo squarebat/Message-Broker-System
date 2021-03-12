@@ -30,4 +30,4 @@ public:
     void decrement_num_active_clients();
 };
 
-#endif
+#endif //MESSAGE_BROKER_SYSTEM_TOPIC_H

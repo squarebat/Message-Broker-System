@@ -1,7 +1,3 @@
-//
-// Created by mando on 12/01/21.
-//
-
 #ifndef MESSAGE_BROKER_SYSTEM_SYSTEMCONTEXT_H
 #define MESSAGE_BROKER_SYSTEM_SYSTEMCONTEXT_H
 
@@ -27,6 +23,7 @@ private:
     unordered_map<std::string, Client> clients;
     std::mutex mutex_lock;
 
+    static bool instantiated;
     static const std::string logger_name;
 
     SystemContext() = default;
@@ -36,8 +33,7 @@ public:
     void operator=(SystemContext const&) = delete;
     void StartAPI();
     void AddClient(const std::string& name, const std::string& ip_address, const std::string& notif_port_no);
-    static SystemContext & GenerateContext(int argc, char **argv);
+    static SystemContext& GenerateContext(int argc, char **argv);
 };
-
 
 #endif //MESSAGE_BROKER_SYSTEM_SYSTEMCONTEXT_H
