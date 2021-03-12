@@ -11,10 +11,10 @@ PUBSINK = $(BINDIR)/publish_to_topic_sink.h.gch
 all: release
 
 debug: CPPFLAGS += -g
-debug: $(BINDIR) $(LOGDIR) $(BINDIR)/$(EVENTFLOW_BINARY) $(BINDIR)/$(EVENTFLOWCTL_BINARY)
+debug: $(BINDIR) $(BINDIR)/$(EVENTFLOW_BINARY) $(BINDIR)/$(EVENTFLOWCTL_BINARY)
 
 release: CPPFLAGS += -O3
-release: $(BINDIR) $(LOGDIR) $(BINDIR)/$(EVENTFLOW_BINARY) $(BINDIR)/$(EVENTFLOWCTL_BINARY)
+release: $(BINDIR) $(BINDIR)/$(EVENTFLOW_BINARY) $(BINDIR)/$(EVENTFLOWCTL_BINARY)
 
 $(BINDIR)/$(EVENTFLOWCTL_BINARY): src/ClientInfoMgmt.cpp $(BINDIR)/AuthenticationData.o $(BINDIR)/ClientAuthData.o
 	$(CC) $(CPPFLAGS) src/ClientInfoMgmt.cpp $(BINDIR)/AuthenticationData.o $(BINDIR)/ClientAuthData.o -lboost_program_options -lcrypt -o $@
