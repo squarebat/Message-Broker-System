@@ -185,7 +185,7 @@ SystemContext& SystemContext::GenerateContext(int argc, char** argv) {
         }
     }
 
-    topic_names.erase(std::remove(topic_names.begin(), topic_names.end(), status_log_topic_name));
+//    topic_names.erase(std::remove(topic_names.begin(), topic_names.end(), status_log_topic_name));
 
     for (auto &topic_name : topic_names) {
         systemContext.topics[topic_name] = Topic(topic_name);
