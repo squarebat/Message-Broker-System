@@ -27,6 +27,7 @@ private:
     unordered_map<std::string, Client> clients;
     std::mutex mutex_lock;
 
+    static bool instantiated;
     static const std::string logger_name;
 
     SystemContext() = default;

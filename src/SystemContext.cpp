@@ -17,6 +17,7 @@
 
 namespace po = boost::program_options;
 const string SystemContext::logger_name = "status_log";
+bool SystemContext::instantiated = false;
 
 // To prevent libcurl output
 size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
@@ -33,6 +34,9 @@ std::string get_current_time() {
 
 SystemContext& SystemContext::GenerateContext(int argc, char** argv) {
     static SystemContext systemContext;
+    if (instantiated) {
+        return systemContext;
+    }
 
     po::options_description description("usage: eventflow [options]");
     description.add_options()
@@ -202,6 +206,7 @@ SystemContext& SystemContext::GenerateContext(int argc, char** argv) {
     systemContext.authenticationData = new AuthenticationData(clientinfoFile);
     systemContext.authenticationData->LoadData();
 
+    instantiated = true;
     return systemContext;
 }
 
