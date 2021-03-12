@@ -1,7 +1,3 @@
-//
-// Created by mando on 12/01/21.
-//
-
 #define CROW_ENABLE_SSL
 
 #include <iostream>
@@ -20,8 +16,7 @@ const string SystemContext::logger_name = "status_log";
 bool SystemContext::instantiated = false;
 
 // To prevent libcurl output
-size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
-{
+size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp) {
     return size * nmemb;
 }
 
@@ -155,13 +150,13 @@ SystemContext& SystemContext::GenerateContext(int argc, char** argv) {
         logger_queue_size = 8192;
     }
 
-    const YAML::Node &topics = config["topics"];
+    const YAML::Node& topics = config["topics"];
     std::vector<std::string> topic_names;
     std::vector<std::string> client_names;
 
     topic_names.reserve(topics.size());
 
-    for (const auto &topic : topics) {
+    for (const auto& topic : topics) {
         topic_names.emplace_back(topic["name"].as<std::string>());
         for (int j = 0; j < topic["publishers"].size(); j++) {
             client_names.emplace_back(topic["publishers"][j].as<std::string>());
@@ -176,7 +171,7 @@ SystemContext& SystemContext::GenerateContext(int argc, char** argv) {
 
     systemContext.accessList = std::make_unique<AccessList>(topic_names, client_names);
 
-    for (const auto &topic : topics) {
+    for (const auto& topic : topics) {
         for (int j = 0; j < topic["publishers"].size(); j++) {
             client_names.emplace_back();
             systemContext.accessList->addAsPublisherOf(topic["publishers"][j].as<std::string>(),
@@ -191,7 +186,7 @@ SystemContext& SystemContext::GenerateContext(int argc, char** argv) {
 
 //    topic_names.erase(std::remove(topic_names.begin(), topic_names.end(), status_log_topic_name));
 
-    for (auto &topic_name : topic_names) {
+    for (auto& topic_name : topic_names) {
         systemContext.topics[topic_name] = Topic(topic_name);
     }
 

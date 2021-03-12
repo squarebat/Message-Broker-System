@@ -1,10 +1,5 @@
-//
-// Created by mando on 15/01/21.
-//
-
 #ifndef MESSAGE_BROKER_SYSTEM_ACCESSLIST_H
 #define MESSAGE_BROKER_SYSTEM_ACCESSLIST_H
-
 
 #include <map>
 #include <vector>
@@ -23,6 +18,5 @@ public:
     bool isPublisherOf(const std::string& client, const std::string& topic);
     bool isSubscriberOf(const std::string& client, const std::string& topic);
 };
-
 
 #endif //MESSAGE_BROKER_SYSTEM_ACCESSLIST_H

@@ -1,7 +1,3 @@
-//
-// Created by mando on 15/01/21.
-//
-
 #include <AccessList.h>
 #include <utility>
 #include <stdexcept>
@@ -39,13 +35,13 @@ bool AccessList::isSubscriberOf(const std::string& client, const std::string& to
     return access_info[_topic][_client] & 2;
 }
 
-void AccessList::addAsPublisherOf(const std::string &client, const std::string &topic) {
+void AccessList::addAsPublisherOf(const std::string& client, const std::string& topic) {
     int _client = clients[client];
     int _topic = topics[topic];
     access_info[_topic][_client] |= 1;
 }
 
-void AccessList::addAsSubscriberOf(const std::string &client, const std::string &topic) {
+void AccessList::addAsSubscriberOf(const std::string& client, const std::string& topic) {
     int _client = clients[client];
     int _topic = topics[topic];
     access_info[_topic][_client] |= 2;

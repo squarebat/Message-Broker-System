@@ -14,7 +14,7 @@ private:
 public:
     Client() = default;
     Client(std::string name, std::string ip_address, std::string notif_port_no):
-    _name(std::move(name)), _ip_address(std::move(ip_address)), _notif_port_no(std::move(notif_port_no)) {}
+            _name(std::move(name)), _ip_address(std::move(ip_address)), _notif_port_no(std::move(notif_port_no)) {}
 
     std::string& name() {
         return _name;
@@ -36,6 +36,5 @@ public:
         _num_events_fetched[topic_name]++;
     }
 };
-
 
 #endif //MESSAGE_BROKER_SYSTEM_CLIENT_H
