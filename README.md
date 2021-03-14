@@ -280,7 +280,9 @@ eventflow --port 38080 --threads 8  --config ~/.config/eventflow/config.yaml --a
 
 [Making Sense of Stream Processing](https://assets.confluent.io/m/2a60fabedb2dfbb1/original/20190307-EB-Making_Sense_of_Stream_Processing_Confluent.pdf) - An excellent book by Martin Kleppmann about the philosophy behind Scalable Stream Data Platforms.
 
-**NOTE: <i>crow_all.h</i>** file in the repo is the output of the build of the [crow](https://github.com/ipkn/crow) project. However, some modifications had to be made to this file which is why we have the file in our repo. Here is the LICENSE of the crow project.
+---
+## NOTE
+**<i>crow_all.h</i>** file in the repo is the output of the build of the [crow](https://github.com/ipkn/crow) project. However, some modifications had to be made to this file which is why we have the file in our repo. Here is the LICENSE of the crow project.
 ```
 Copyright (c) 2014, ipkn
 All rights reserved.
