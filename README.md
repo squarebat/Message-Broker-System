@@ -171,11 +171,11 @@ By default, the eventflow executable expects a clientinfo file in the current di
 By default, the eventflow executable will expose the REST API on 18080 port number. But this can be changed by providing the value in the config file or as a command line argument.
 <br><b>Eg:</b> `eventflow --port 38080`
 #### Number of REST API Threads:
-By default, the eventflow executable will create as many threads for the REST API as supported by the hardware. This is the same as the response of the call to the function std::thread::hardware_concurrency(). But this can be changed by providing the value in the config file or as a command line argument. If the given value is zero, then the system will have default behavior.
+By default, the eventflow executable will create as many threads for the REST API as supported by the hardware. This is the same as the response of the call to the function `std::thread::hardware_concurrency()`. But this can be changed by providing the value in the config file or as a command line argument. If the given value is zero, then the system will have default behavior.
 <br><b>Eg:</b> `eventflow --threads 8`
 #### .crt and .key file location:
 By default, the eventflow executable expects a host.crt and a host.key file in the current directory. These two files are the certificates used by HTTPS to secure the connection between client and server. If these files are placed elsewhere, then their location can be provided in the config file or as command line arguments.
-<br><b>Eg:</b> `eventflow --crt ~/.config/crts/**eventflow**.crt --key ~/.config/keys/eventflow.key`
+<br><b>Eg:</b> `eventflow --crt ~/.config/crts/eventflow.crt --key ~/.config/keys/eventflow.key`
 #### Topics:
 This is used to provide a list of all the topics that the server should host along with a list of their subscribers and publishers. The system does not check if the publisher / subscriber list contains only those clients that are also present in the authinfo file. Any publisher / subscriber in the list who is not in the authinfo file, will never be able to publish / fetch events from the topic as they will never be able to authenticate themselves.
 #### JWT secret key:
