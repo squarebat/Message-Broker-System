@@ -9,6 +9,7 @@ Contents:
 - [Eventflow API](#api)
 - [Setup](#setup)
 - [Limitations](#limitations)
+- [Dependencies](#dependencies)
 - [Developers](#dev)
 - [References](#references)
 
@@ -255,10 +256,11 @@ Client Name: Client1
 > cat clientinfo
 ```
 
-Now, we can execute eventflow providing any of the described command line arguments we want to provide.
+Now, we can execute eventflow providing any of the described command line arguments we want to provide. For eg:
 ```
 eventflow --port 38080 --threads 8  --config ~/.config/eventflow/config.yaml --authinfo ~/.config/eventflow/clientinfo --crt ~/.config/crts/eventflow.crt --key ~/.config/keys/eventflow.key
 ```
+You do need to generate the .crt and .key files.
 
 ## <a name="limitations"></a>Limitations
 
@@ -269,6 +271,21 @@ eventflow --port 38080 --threads 8  --config ~/.config/eventflow/config.yaml --a
 * Currently, JSON is the medium of exchange of data. This is because JSON is much faster and easier to write and debug and is less verbose than XML. JSON serializers and deserializers are also present for almost all the languages. However, different clients want data in different formats. This can be achieved by allowing the usage of plugins. Users can then write plugins that translate the data into a given format.
 * Configuration can be hard. A small web client can be created providing a GUI for creating a configuration file.
 * ACKs have not been implemented i.e. a producer will never know if a message has been received by all or any of the subscribers. This bears a serious limitation in message communication.
+
+## <a name="dependencies"></a>Dependencies
+The project has following dependencies:
+
+- [`boost`](https://www.boost.org/) (boost_program_options and boost_system) Used "as is".
+- [`yaml-cpp`](https://github.com/jbeder/yaml-cpp/releases/tag/yaml-cpp-0.6.3) Used "as is".
+- [`spdlog`](https://github.com/gabime/spdlog/releases/tag/v1.8.2) Used "as is"
+- [`crow`](https://github.com/ipkn/crow/releases/tag/v0.1) Modified and included in repo.
+- `libcrypt-dev` Available on linux distros. Used "as is"
+- `libssl-dev` Available on linux distros. Used "as is"
+- `libcurl4-openssl-dev` Available on linux distros. Used "as is"
+
+This system has been developed and tested on Linux.
+<br><br>
+Also, since `libcrypt-dev` is only available on Linux distros, this project works only for linux system. However, some modifications can be done to make this work on other systems as well.
 
 ## <a name="dev"></a>Developers
 [Vishal Dalwadi](https://github.com/VishalDalwadi) | [Khadija Sidhpuri](https://github.com/squarebat)
