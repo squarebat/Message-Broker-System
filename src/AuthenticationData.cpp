@@ -15,11 +15,25 @@ void AuthenticationData::LoadData() {
 
 void AuthenticationData::WriteData() {
     std::ofstream authDataOStream;
+    SetPasswordFileMutable();
     authDataOStream.open(_authFilePath, std::ios::out);
     for (const auto& it: clientsAuthData) {
         authDataOStream << it.second;
     }
     authDataOStream.close();
+    SetPasswordFileImmutable();
+}
+
+int AuthenticationData::SetPasswordFileMutable() {
+    std::string command = "sudo -p \"Enter your sudo password to continue: \" chattr -i " + _authFilePath;
+    std::cout << _authFilePath << std::endl;
+    std::cout << command << std::endl;
+    return system(command.c_str());
+}
+
+int AuthenticationData::SetPasswordFileImmutable() {
+    std::string command = "sudo -p \"Enter your sudo password to continue: \" chattr +i " + _authFilePath;
+    return system(command.c_str());
 }
 
 bool AuthenticationData::AuthenticateClient(const std::string& name, const std::string& password) {

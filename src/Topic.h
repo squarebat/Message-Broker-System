@@ -11,7 +11,7 @@
 #include <Client.h>
 
 
-class Topic : public basic_string<char> {
+class Topic : public std::basic_string<char> {
 private:
     std::mutex mutex_lock;
     std::mutex count_mutex_lock;
@@ -19,9 +19,9 @@ private:
     long num_active_clients{};
 public:
     std::string name;
-    vector<Event> events{};
+    std::vector<Event> events{};
     Topic() = default;
-    explicit Topic(string topic_name);
+    explicit Topic(std::string topic_name);
     Topic& operator=(const Topic& topic);
     void pub_event(std::string event);
     Event get_event_for(Client& client);

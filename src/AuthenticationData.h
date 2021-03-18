@@ -10,12 +10,15 @@ class AuthenticationData {
 private:
     std::string _authFilePath;
     std::unordered_map<std::string, ClientAuthData> clientsAuthData;
+
 public:
     AuthenticationData() = delete;
     explicit AuthenticationData(std::string authFilePath) : _authFilePath(std::move(authFilePath)) {}
 
     void LoadData();
     void WriteData();
+    int SetPasswordFileMutable();
+    int SetPasswordFileImmutable();
     bool AuthenticateClient(const std::string& name, const std::string& password);
     void AddClientAuthData(const std::string& name, const std::string& password);
     void ModifyClientAuthData(const std::string& name, const std::string& password);

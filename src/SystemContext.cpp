@@ -12,7 +12,7 @@
 #include <spdlog/spdlog.h>
 
 namespace po = boost::program_options;
-const string SystemContext::logger_name = "status_log";
+const std::string SystemContext::logger_name = "status_log";
 bool SystemContext::instantiated = false;
 
 // To prevent libcurl output

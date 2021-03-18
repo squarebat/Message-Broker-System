@@ -19,8 +19,8 @@ private:
     std::unique_ptr<AccessList> accessList;
     crow::SimpleApp app;
     AuthenticationData* authenticationData{};
-    unordered_map<std::string, Topic> topics;
-    unordered_map<std::string, Client> clients;
+    std::unordered_map<std::string, Topic> topics;
+    std::unordered_map<std::string, Client> clients;
     std::mutex mutex_lock;
 
     static bool instantiated;
