@@ -41,7 +41,7 @@ Further information about these distribution patterns is provided in [Features](
 
 Message brokers are used across a wide variety of systems for different purposes. Some of its use cases include:
 
-- Messaging (duh). Message brokers ensure efficient and reliable communication between several components of a system. It enables decoupling of data producers and consumers and gives an increased control over communication.
+- Messaging (Well, of course). Message brokers ensure efficient and reliable communication between several components of a system. It enables decoupling of data producers and consumers and gives an increased control over communication.
 
 - Monitoring and Retreiving data in real time. Events across the system are recorded, aggregation statistics are performed on the data continuously. This is especially useful in data intensive applications where data is required as fast as possible. E.g. Quickly fetching data on social media platforms with millions of users.
 
