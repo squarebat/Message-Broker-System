@@ -5,6 +5,7 @@ Eventflow is an experimental message broker system, developed to understand the 
 Contents:
 
 - [What is a message broker?](#messagebroker)
+- [Use Cases](#usecases)
 - [Features](#features)
 - [Eventflow API](#api)
 - [Setup](#setup)
@@ -35,6 +36,20 @@ The two basic messaging styles of a message broker system are:
 2. Publish/Subscribe messaging
 
 Further information about these distribution patterns is provided in [Features](#features).
+
+## <a name="usecase"></a>Use Cases
+
+Message brokers are used across a wide variety of systems for different purposes. Some of its use cases include:
+
+- Messaging (duh). Message brokers ensure efficient and reliable communication between several components of a system. It enables decoupling of data producers and consumers and gives an increased control over communication.
+
+- Monitoring and Retreiving data in real time. Events across the system are recorded, aggregation statistics are performed on the data continuously. This is especially useful in data intensive applications where data is required as fast as possible. E.g. Quickly fetching data on social media platforms with millions of users.
+
+- Activity tracking. Several activities that occur in an application can be recorded in seperate topics. E.g recording page views, hyperlink and ad clicks, search data etc. This is generally data intensive as a lot of activities might be recorded on a single page, by a single user. 
+
+- To immediately respond to end users. User actions can be recorded as messages, and can be used to interact with the user in real time, this data can later be used for slower processing tasks, without hindering application performance. For e.g. Customer oriented applications that involve financial transactions, multiplayer gaming platforms etc.
+
+- Logging. Eventflow offers activity logging to record all flow of data, useful to analyse faults in data and record keeping. The logs can also be stored persitently and used for data processing over long intervals of time.       
 
 ## <a name="features"></a>Features
 
