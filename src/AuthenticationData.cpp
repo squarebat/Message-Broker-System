@@ -15,11 +15,13 @@ void AuthenticationData::LoadData() {
 
 void AuthenticationData::WriteData() {
     std::ofstream authDataOStream;
+    SetPasswordFileMutable();
     authDataOStream.open(_authFilePath, std::ios::out);
     for (const auto& it: clientsAuthData) {
         authDataOStream << it.second;
     }
     authDataOStream.close();
+    SetPasswordFileImmutable();
 }
 
 int AuthenticationData::SetPasswordFileMutable() {

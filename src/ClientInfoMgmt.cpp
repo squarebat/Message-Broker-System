@@ -49,7 +49,6 @@ int main(int argc, char** argv) {
                 std::string conf_pwd(_conf_pwd, strlen(_conf_pwd));
                 if (pwd == conf_pwd) {
                     authData.AddClientAuthData(name, pwd);
-                    authData.SetPasswordFileMutable();
                 } else {
                     std::cout << "Passwords do not match.\n";
                     exit(1);
@@ -62,7 +61,6 @@ int main(int argc, char** argv) {
             }
             if (authData.AuthDataExists(name)) {
                 authData.DeleteClientAuthData(name);
-                authData.SetPasswordFileMutable();
             } else {
                 std::cout << "Client with name '" + name + "' does not exist.\n";
                 exit(1);
@@ -79,7 +77,6 @@ int main(int argc, char** argv) {
                 std::string conf_pwd(_conf_pwd, strlen(_conf_pwd));
                 if (pwd == conf_pwd) {
                     authData.ModifyClientAuthData(name, pwd);
-                    authData.SetPasswordFileMutable();
                 } else {
                     std::cout << "Passwords do not match.\n";
                     exit(1);
@@ -92,7 +89,6 @@ int main(int argc, char** argv) {
             std::cerr << "Error: action must be one of ['add', 'del', 'mod']." << std::endl;
         }
         authData.WriteData();
-        authData.SetPasswordFileImmutable();
     }
     return 0;
 }
