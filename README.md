@@ -70,7 +70,7 @@ Eventflow offers implementation of the two message distribution patterns, point-
 Eventflow API contains publish and subscribe for achieving publish/subscribe messaging. Additionally, client authentication and authorization features are provided for point-to-point messaging. However, acks have not been implemented i.e. a producer will never know if a message is delivered. This bears a serious limitation in message communication. More on this in [Eventflow API](#api).
 
 ## <a name="api"></a>Eventflow API
-The system exposes four REST API endpoints.These endpoints will be used by the clients to communicate with eventflow. Eventflow supports only HTTPS. It expects the request data to be JSON. A sentence ending in * describes current behavior that is subject to change in the future.
+The system exposes four HTTPS endpoints.These endpoints will be used by the clients to communicate with eventflow. Eventflow supports only HTTPS. It expects the request data to be JSON. A sentence ending in * describes current behavior that is subject to change in the future.
 
 ### 1. POST /auth:
 This endpoint authenticates the clients and returns a token. All the other endpoints expect this token. The token is a JWToken*. The request data and the response messages are shown below.
